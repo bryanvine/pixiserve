@@ -1,0 +1,118 @@
+# ==================
+# Claude Code artifacts
+# ==================
+.claude/
+*.jsonl
+CLAUDE.md
+.cursorrules
+.cursor/
+
+# ==================
+# IDE / Editor
+# ==================
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+*.sublime-*
+
+# ==================
+# OS files
+# ==================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ==================
+# Environment / Secrets
+# ==================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+credentials.json
+
+# ==================
+# Logs
+# ==================
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ==================
+# Build outputs
+# ==================
+dist/
+build/
+out/
+*.egg-info/
+
+# ==================
+# Dependencies
+# ==================
+node_modules/
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+*.egg
+
+# ==================
+# Test / Coverage
+# ==================
+coverage/
+htmlcov/
+.coverage
+.coverage.*
+.pytest_cache/
+.nyc_output/
+*.lcov
+
+# ==================
+# Cache
+# ==================
+.cache/
+.parcel-cache/
+.ruff_cache/
+.mypy_cache/
+.eslintcache
+*.tsbuildinfo
+
+# ==================
+# Data / Storage
+# ==================
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# ==================
+# Temporary files
+# ==================
+tmp/
+temp/
+*.tmp
+*.bak
+*.backup
+
+# ==================
+# Docker
+# ==================
+docker-compose.override.yml
+
+
+tmpclaude*

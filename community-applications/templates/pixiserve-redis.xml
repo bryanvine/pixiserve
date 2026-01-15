@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Pixiserve-Redis</Name>
+  <Repository>redis:7-alpine</Repository>
+  <Registry>https://hub.docker.com/_/redis</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/pixiserve/pixiserve/issues</Support>
+  <Project>https://github.com/pixiserve/pixiserve</Project>
+  <Overview>
+Redis cache and message broker for Pixiserve photo management system.
+
+This is a companion container for Pixiserve. It provides Redis for caching, session storage, and background job queuing.
+  </Overview>
+  <Category>Tools:Utilities</Category>
+  <WebUI/>
+  <TemplateURL>https://raw.githubusercontent.com/pixiserve/pixiserve/main/deploy/unraid/pixiserve-redis.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/pixiserve/pixiserve/main/deploy/unraid/redis-icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs>redis-server --appendonly yes</PostArgs>
+  <CPUset/>
+  <DateInstalled/>
+  <Requires>Used with Pixiserve</Requires>
+  <Config Name="Redis Port" Target="6379" Default="6379" Mode="tcp" Description="Redis port (change if you have conflicts)" Type="Port" Display="advanced" Required="false" Mask="false">6379</Config>
+  <Config Name="Data Storage" Target="/data" Default="/mnt/user/appdata/pixiserve/redis" Mode="rw" Description="Path to store Redis data" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/pixiserve/redis</Config>
+</Container>

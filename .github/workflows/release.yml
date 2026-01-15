@@ -1,0 +1,78 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Get previous tag
+          PREV_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+
+          if [ -z "$PREV_TAG" ]; then
+            # First release - get all commits
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" HEAD)
+          else
+            # Get commits since last tag
+            CHANGELOG=$(git log --pretty=format:"- %s (%h)" ${PREV_TAG}..HEAD)
+          fi
+
+          # Write to file for multi-line support
+          echo "$CHANGELOG" > changelog.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          body_path: changelog.txt
+          draft: false
+          prerelease: ${{ contains(github.ref, 'alpha') || contains(github.ref, 'beta') || contains(github.ref, 'rc') }}
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Update Community Applications after release
+  update-ca-templates:
+    needs: release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Update template versions
+        run: |
+          VERSION=${{ steps.version.outputs.VERSION }}
+
+          # Update API template
+          sed -i "s|pixiserve/pixiserve:latest|pixiserve/pixiserve:${VERSION}|g" community-applications/templates/pixiserve.xml
+
+          # Update Web template
+          sed -i "s|pixiserve/pixiserve-web:latest|pixiserve/pixiserve-web:${VERSION}|g" community-applications/templates/pixiserve-web.xml
+
+          # Update Worker template
+          sed -i "s|pixiserve/pixiserve-worker:latest|pixiserve/pixiserve-worker:${VERSION}|g" community-applications/templates/pixiserve-worker.xml
+
+      - name: Commit version updates
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add community-applications/templates/*.xml
+          git commit -m "chore: update template versions to ${{ steps.version.outputs.VERSION }}" || echo "No changes to commit"
+          git push origin HEAD:main || echo "Could not push (may need PR)"

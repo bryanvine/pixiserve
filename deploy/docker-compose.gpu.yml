@@ -1,0 +1,82 @@
+version: "3.9"
+
+# GPU support overrides
+# Usage:
+#   NVIDIA: docker compose -f docker-compose.yml -f docker-compose.gpu.yml up -d
+#   AMD:    docker compose -f docker-compose.yml -f docker-compose.gpu.yml --profile rocm up -d
+#   Coral:  docker compose -f docker-compose.yml -f docker-compose.gpu.yml --profile coral up -d
+
+services:
+  # NVIDIA CUDA worker (default GPU)
+  worker:
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.worker
+      target: cuda
+    image: pixiserve/pixiserve-worker:cuda
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+
+  # AMD ROCm worker (use --profile rocm)
+  worker-rocm:
+    profiles: ["rocm"]
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.worker
+      target: rocm
+    image: pixiserve/pixiserve-worker:rocm
+    container_name: pixiserve-worker-rocm
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-pixiserve}:${POSTGRES_PASSWORD:-pixiserve}@db:5432/${POSTGRES_DB:-pixiserve}
+      - REDIS_URL=redis://redis:6379/0
+      - STORAGE_PATH=/data/photos
+    volumes:
+      - photos:/data/photos
+      - thumbnails:/data/thumbnails
+    devices:
+      - /dev/kfd
+      - /dev/dri
+    group_add:
+      - video
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - pixiserve
+
+  # Google Coral TPU worker (use --profile coral)
+  worker-coral:
+    profiles: ["coral"]
+    build:
+      context: ../backend
+      dockerfile: Dockerfile.worker
+      target: coral
+    image: pixiserve/pixiserve-worker:coral
+    container_name: pixiserve-worker-coral
+    restart: unless-stopped
+    privileged: true  # Required for USB TPU access
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER:-pixiserve}:${POSTGRES_PASSWORD:-pixiserve}@db:5432/${POSTGRES_DB:-pixiserve}
+      - REDIS_URL=redis://redis:6379/0
+      - STORAGE_PATH=/data/photos
+    volumes:
+      - photos:/data/photos
+      - thumbnails:/data/thumbnails
+      - /dev/bus/usb:/dev/bus/usb  # USB TPU access
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - pixiserve

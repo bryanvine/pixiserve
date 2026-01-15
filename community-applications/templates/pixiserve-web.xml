@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Pixiserve-Web</Name>
+  <Repository>pixiserve/pixiserve-web:latest</Repository>
+  <Registry>https://hub.docker.com/r/pixiserve/pixiserve-web</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>sh</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/pixiserve/pixiserve/issues</Support>
+  <Project>https://github.com/pixiserve/pixiserve</Project>
+  <Overview>
+Pixiserve Web UI - The web interface for Pixiserve photo management.
+
+This container provides the web frontend and proxies API requests to the Pixiserve API container.
+
+NOTE: This container requires the Pixiserve API container to be running. Install and configure Pixiserve (API) first.
+  </Overview>
+  <Category>MediaApp:Photos MediaServer:Other</Category>
+  <WebUI>http://[IP]:[PORT:3000]</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/pixiserve/pixiserve/main/deploy/unraid/pixiserve-web.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/pixiserve/pixiserve/main/deploy/unraid/pixiserve-icon.png</Icon>
+  <ExtraParams>--add-host=api:host-gateway</ExtraParams>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText>Support Pixiserve Development</DonateText>
+  <DonateLink>https://github.com/sponsors/pixiserve</DonateLink>
+  <Requires>Pixiserve API container</Requires>
+  <Config Name="Web UI Port" Target="80" Default="3000" Mode="tcp" Description="Port for the web interface" Type="Port" Display="always" Required="true" Mask="false">3000</Config>
+</Container>

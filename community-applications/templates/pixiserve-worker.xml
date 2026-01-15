@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Pixiserve-Worker</Name>
+  <Repository>pixiserve/pixiserve-worker:latest</Repository>
+  <Registry>https://hub.docker.com/r/pixiserve/pixiserve-worker</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/pixiserve/pixiserve/issues</Support>
+  <Project>https://github.com/pixiserve/pixiserve</Project>
+  <Overview>
+Pixiserve ML Worker - Background processing for photo analysis.
+
+Handles:
+- Thumbnail generation (WebP)
+- EXIF metadata extraction
+- GPS reverse geocoding
+- Face detection and recognition (Phase 4)
+- Object and scene detection (Phase 4)
+
+Supports CPU, NVIDIA CUDA, AMD ROCm, and Google Coral TPU.
+
+NOTE: Requires Pixiserve API, PostgreSQL, and Redis to be running.
+For GPU support, use the pixiserve-worker:cuda, :rocm, or :coral tags.
+  </Overview>
+  <Category>MediaApp:Photos MediaServer:Other</Category>
+  <WebUI/>
+  <TemplateURL>https://raw.githubusercontent.com/pixiserve/pixiserve/main/deploy/unraid/pixiserve-worker.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/pixiserve/pixiserve/main/deploy/unraid/pixiserve-icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText>Support Pixiserve Development</DonateText>
+  <DonateLink>https://github.com/sponsors/pixiserve</DonateLink>
+  <Requires>Pixiserve API, PostgreSQL 16+, and Redis 7+</Requires>
+  <Config Name="Database URL" Target="DATABASE_URL" Default="postgresql+asyncpg://pixiserve:pixiserve@pixiserve-db:5432/pixiserve" Mode="" Description="PostgreSQL connection string (must match Pixiserve API)" Type="Variable" Display="always" Required="true" Mask="false">postgresql+asyncpg://pixiserve:pixiserve@pixiserve-db:5432/pixiserve</Config>
+  <Config Name="Redis URL" Target="REDIS_URL" Default="redis://pixiserve-redis:6379/0" Mode="" Description="Redis connection string (must match Pixiserve API)" Type="Variable" Display="always" Required="true" Mask="false">redis://pixiserve-redis:6379/0</Config>
+  <Config Name="Photos Storage" Target="/data/photos" Default="/mnt/user/appdata/pixiserve/photos" Mode="rw" Description="Path to photos (must match Pixiserve API)" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/pixiserve/photos</Config>
+  <Config Name="Thumbnails Storage" Target="/data/thumbnails" Default="/mnt/user/appdata/pixiserve/thumbnails" Mode="rw" Description="Path to thumbnails (must match Pixiserve API)" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/pixiserve/thumbnails</Config>
+</Container>

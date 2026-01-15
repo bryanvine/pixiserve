@@ -1,0 +1,160 @@
+# Pixiserve ML Worker Dockerfile
+# Supports: CPU, NVIDIA CUDA, AMD ROCm, Google Coral TPU
+
+# Base image selection via build args
+ARG BASE_IMAGE=python:3.11-slim
+
+FROM ${BASE_IMAGE} AS base
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY pyproject.toml poetry.lock* ./
+RUN pip install --no-cache-dir poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-dev --no-interaction --no-ansi
+
+# Copy application code
+COPY app ./app
+
+# Default environment
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD celery -A app.workers.celery_app inspect ping -d celery@$HOSTNAME || exit 1
+
+# Run Celery worker
+CMD ["celery", "-A", "app.workers.celery_app", "worker", "--loglevel=info"]
+
+
+# ============================================
+# NVIDIA CUDA variant
+# ============================================
+FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04 AS cuda
+
+WORKDIR /app
+
+# Install Python and system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3-pip \
+    python3.11-dev \
+    ffmpeg \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -s /usr/bin/python3.11 /usr/bin/python
+
+# Install Python dependencies
+COPY pyproject.toml poetry.lock* ./
+RUN pip install --no-cache-dir poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-dev --no-interaction --no-ansi
+
+# Install CUDA-specific ONNX Runtime
+RUN pip install --no-cache-dir onnxruntime-gpu
+
+# Optional: Install nvidia-ml-py for GPU monitoring
+RUN pip install --no-cache-dir nvidia-ml-py
+
+COPY app ./app
+
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV NVIDIA_VISIBLE_DEVICES=all
+ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD celery -A app.workers.celery_app inspect ping -d celery@$HOSTNAME || exit 1
+
+CMD ["celery", "-A", "app.workers.celery_app", "worker", "--loglevel=info", "-Q", "ml,thumbnails,default"]
+
+
+# ============================================
+# AMD ROCm variant
+# ============================================
+FROM rocm/dev-ubuntu-22.04:5.7 AS rocm
+
+WORKDIR /app
+
+# Install Python and system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3-pip \
+    python3.11-dev \
+    ffmpeg \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf /usr/bin/python3.11 /usr/bin/python
+
+# Install Python dependencies
+COPY pyproject.toml poetry.lock* ./
+RUN pip install --no-cache-dir poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-dev --no-interaction --no-ansi
+
+# Install ROCm ONNX Runtime
+RUN pip install --no-cache-dir onnxruntime-rocm
+
+COPY app ./app
+
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD celery -A app.workers.celery_app inspect ping -d celery@$HOSTNAME || exit 1
+
+CMD ["celery", "-A", "app.workers.celery_app", "worker", "--loglevel=info", "-Q", "ml,thumbnails,default"]
+
+
+# ============================================
+# Google Coral TPU variant
+# ============================================
+FROM debian:bullseye-slim AS coral
+
+WORKDIR /app
+
+# Install Coral Edge TPU runtime
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3-pip \
+    python3.11-dev \
+    ffmpeg \
+    libpq-dev \
+    gcc \
+    gnupg \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Add Coral repository
+RUN echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list \
+    && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
+    && apt-get update \
+    && apt-get install -y libedgetpu1-std python3-pycoral \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY pyproject.toml poetry.lock* ./
+RUN pip install --no-cache-dir poetry && \
+    poetry config virtualenvs.create false && \
+    poetry install --no-dev --no-interaction --no-ansi
+
+COPY app ./app
+
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD celery -A app.workers.celery_app inspect ping -d celery@$HOSTNAME || exit 1
+
+CMD ["celery", "-A", "app.workers.celery_app", "worker", "--loglevel=info", "-Q", "ml,thumbnails,default"]

@@ -1,0 +1,29 @@
+{
+  "name": "Pixiserve Templates",
+  "author": "Pixiserve",
+  "description": "Unraid templates for Pixiserve - self-hosted photo management",
+  "support": "https://github.com/pixiserve/pixiserve/issues",
+  "repository": "https://github.com/pixiserve/pixiserve",
+  "templates": [
+    {
+      "name": "pixiserve",
+      "path": "templates/pixiserve.xml"
+    },
+    {
+      "name": "pixiserve-postgres",
+      "path": "templates/pixiserve-postgres.xml"
+    },
+    {
+      "name": "pixiserve-redis",
+      "path": "templates/pixiserve-redis.xml"
+    },
+    {
+      "name": "pixiserve-web",
+      "path": "templates/pixiserve-web.xml"
+    },
+    {
+      "name": "pixiserve-worker",
+      "path": "templates/pixiserve-worker.xml"
+    }
+  ]
+}

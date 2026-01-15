@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>Pixiserve</Name>
+  <Repository>pixiserve/pixiserve:latest</Repository>
+  <Registry>https://hub.docker.com/r/pixiserve/pixiserve</Registry>
+  <Network>bridge</Network>
+  <MyIP/>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/pixiserve/pixiserve/issues</Support>
+  <Project>https://github.com/pixiserve/pixiserve</Project>
+  <Overview>
+Pixiserve is a self-hosted Google Photos replacement with ML-powered organization.
+
+Features:
+- Photo and video upload with automatic deduplication
+- Face recognition and clustering
+- Object and scene detection
+- Timeline and album views
+- Family library sharing
+- Mobile sync support
+
+NOTE: This container requires PostgreSQL and Redis. Use the Pixiserve Stack template for an all-in-one deployment, or connect to existing instances.
+  </Overview>
+  <Category>MediaApp:Photos MediaServer:Other</Category>
+  <WebUI>http://[IP]:[PORT:8000]</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/pixiserve/pixiserve/main/deploy/unraid/pixiserve.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/pixiserve/pixiserve/main/deploy/unraid/pixiserve-icon.png</Icon>
+  <ExtraParams/>
+  <PostArgs/>
+  <CPUset/>
+  <DateInstalled/>
+  <DonateText>Support Pixiserve Development</DonateText>
+  <DonateLink>https://github.com/sponsors/pixiserve</DonateLink>
+  <Requires>PostgreSQL 16+ and Redis 7+</Requires>
+  <Config Name="Web UI Port" Target="8000" Default="8000" Mode="tcp" Description="Port for the web interface and API" Type="Port" Display="always" Required="true" Mask="false">8000</Config>
+  <Config Name="Photos Storage" Target="/data/photos" Default="/mnt/user/appdata/pixiserve/photos" Mode="rw" Description="Path to store original photos and videos" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/pixiserve/photos</Config>
+  <Config Name="Thumbnails Storage" Target="/data/thumbnails" Default="/mnt/user/appdata/pixiserve/thumbnails" Mode="rw" Description="Path to store generated thumbnails" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/pixiserve/thumbnails</Config>
+  <Config Name="Database URL" Target="DATABASE_URL" Default="postgresql+asyncpg://pixiserve:pixiserve@pixiserve-db:5432/pixiserve" Mode="" Description="PostgreSQL connection string" Type="Variable" Display="always" Required="true" Mask="false">postgresql+asyncpg://pixiserve:pixiserve@pixiserve-db:5432/pixiserve</Config>
+  <Config Name="Redis URL" Target="REDIS_URL" Default="redis://pixiserve-redis:6379/0" Mode="" Description="Redis connection string" Type="Variable" Display="always" Required="true" Mask="false">redis://pixiserve-redis:6379/0</Config>
+  <Config Name="Secret Key" Target="SECRET_KEY" Default="" Mode="" Description="JWT signing key (auto-generated if empty)" Type="Variable" Display="advanced" Required="false" Mask="true"></Config>
+  <Config Name="Allow Registration" Target="ALLOW_REGISTRATION" Default="true" Mode="" Description="Allow new user registration (disable after creating admin)" Type="Variable" Display="always" Required="false" Mask="false">true</Config>
+  <Config Name="Allowed Origins" Target="ALLOWED_ORIGINS" Default="http://localhost:3000" Mode="" Description="CORS allowed origins (comma-separated)" Type="Variable" Display="advanced" Required="false" Mask="false">http://localhost:3000</Config>
+  <Config Name="Storage Type" Target="STORAGE_TYPE" Default="local" Mode="" Description="Storage backend: local or s3" Type="Variable" Display="advanced" Required="false" Mask="false">local</Config>
+  <Config Name="S3 Endpoint" Target="S3_ENDPOINT" Default="" Mode="" Description="S3-compatible endpoint URL (for MinIO, etc)" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="S3 Access Key" Target="S3_ACCESS_KEY" Default="" Mode="" Description="S3 access key" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="S3 Secret Key" Target="S3_SECRET_KEY" Default="" Mode="" Description="S3 secret key" Type="Variable" Display="advanced" Required="false" Mask="true"></Config>
+  <Config Name="S3 Bucket" Target="S3_BUCKET" Default="" Mode="" Description="S3 bucket name" Type="Variable" Display="advanced" Required="false" Mask="false"></Config>
+  <Config Name="Debug Mode" Target="DEBUG" Default="false" Mode="" Description="Enable debug logging" Type="Variable" Display="advanced" Required="false" Mask="false">false</Config>
+</Container>

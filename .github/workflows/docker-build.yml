@@ -12,9 +12,9 @@ on:
 
 env:
   REGISTRY: docker.io
-  API_IMAGE: pixiserve/pixiserve
-  WEB_IMAGE: pixiserve/pixiserve-web
-  WORKER_IMAGE: pixiserve/pixiserve-worker
+  API_IMAGE: ybryany/pixiserve
+  WEB_IMAGE: ybryany/pixiserve-web
+  WORKER_IMAGE: ybryany/pixiserve-worker
 
 jobs:
   # Build API image

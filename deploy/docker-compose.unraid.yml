@@ -1,0 +1,109 @@
+# Pixiserve Docker Compose for Unraid
+# Copy this to /boot/config/plugins/compose.manager/projects/pixiserve/
+# or use Unraid's Docker Compose Manager plugin
+
+version: "3.9"
+
+services:
+  web:
+    image: bryanvine/pixiserve-web:latest
+    container_name: pixiserve-web
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+    networks:
+      - pixiserve
+
+  api:
+    image: bryanvine/pixiserve:latest
+    container_name: pixiserve-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://pixiserve:pixiserve@db:5432/pixiserve
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-change-me-generate-with-openssl-rand-hex-32}
+      - STORAGE_TYPE=local
+      - STORAGE_PATH=/data/photos
+      - ALLOWED_ORIGINS=http://localhost:8080
+      - ALLOW_REGISTRATION=true
+    volumes:
+      - /mnt/user/appdata/pixiserve/data:/data
+      - /mnt/user/photos:/data/photos
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - pixiserve
+
+  db:
+    image: postgres:16-alpine
+    container_name: pixiserve-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=pixiserve
+      - POSTGRES_PASSWORD=pixiserve
+      - POSTGRES_DB=pixiserve
+    volumes:
+      - /mnt/user/appdata/pixiserve/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pixiserve"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pixiserve
+
+  redis:
+    image: redis:7-alpine
+    container_name: pixiserve-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - /mnt/user/appdata/pixiserve/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - pixiserve
+
+  # ML Worker - CPU version
+  # For NVIDIA GPU, use image: bryanvine/pixiserve-worker:cuda
+  # For AMD GPU, use image: bryanvine/pixiserve-worker:rocm
+  worker:
+    image: bryanvine/pixiserve-worker:latest
+    container_name: pixiserve-worker
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://pixiserve:pixiserve@db:5432/pixiserve
+      - REDIS_URL=redis://redis:6379/0
+      - STORAGE_PATH=/data/photos
+    volumes:
+      - /mnt/user/appdata/pixiserve/data:/data
+      - /mnt/user/photos:/data/photos
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - pixiserve
+    # Uncomment for NVIDIA GPU support:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+networks:
+  pixiserve:
+    driver: bridge

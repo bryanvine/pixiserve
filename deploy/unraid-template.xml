@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<Container version="2">
+  <Name>pixiserve</Name>
+  <Repository>bryanvine/pixiserve:latest</Repository>
+  <Registry>https://hub.docker.com/r/bryanvine/pixiserve</Registry>
+  <Network>bridge</Network>
+  <Shell>bash</Shell>
+  <Privileged>false</Privileged>
+  <Support>https://github.com/bryanvine/pixiserve/issues</Support>
+  <Project>https://github.com/bryanvine/pixiserve</Project>
+  <Overview>Self-hosted Google Photos replacement with ML-powered face recognition, object tagging, and smart organization. Features include automatic photo organization, face detection and clustering, object/scene recognition, timeline views, and mobile sync support.</Overview>
+  <Category>MediaApp:Photos Cloud: Productivity:</Category>
+  <WebUI>http://[IP]:[PORT:8080]</WebUI>
+  <TemplateURL>https://raw.githubusercontent.com/bryanvine/pixiserve/main/deploy/unraid-template.xml</TemplateURL>
+  <Icon>https://raw.githubusercontent.com/bryanvine/pixiserve/main/assets/icon.png</Icon>
+  <ExtraParams>--restart unless-stopped</ExtraParams>
+  <DateInstalled></DateInstalled>
+  <Description>Self-hosted Google Photos replacement with ML-powered face recognition, object tagging, and smart organization.</Description>
+  <Networking>
+    <Mode>bridge</Mode>
+    <Publish>
+      <Port>
+        <HostPort>8080</HostPort>
+        <ContainerPort>8000</ContainerPort>
+        <Protocol>tcp</Protocol>
+      </Port>
+    </Publish>
+  </Networking>
+  <Data>
+    <Volume>
+      <HostDir>/mnt/user/appdata/pixiserve</HostDir>
+      <ContainerDir>/data</ContainerDir>
+      <Mode>rw</Mode>
+    </Volume>
+    <Volume>
+      <HostDir>/mnt/user/photos</HostDir>
+      <ContainerDir>/photos</ContainerDir>
+      <Mode>rw</Mode>
+    </Volume>
+  </Data>
+  <Environment>
+    <Variable>
+      <Value>your-secret-key-change-me</Value>
+      <Name>SECRET_KEY</Name>
+      <Mode/>
+    </Variable>
+    <Variable>
+      <Value>postgresql+asyncpg://pixiserve:pixiserve@pixiserve-db:5432/pixiserve</Value>
+      <Name>DATABASE_URL</Name>
+      <Mode/>
+    </Variable>
+    <Variable>
+      <Value>redis://pixiserve-redis:6379/0</Value>
+      <Name>REDIS_URL</Name>
+      <Mode/>
+    </Variable>
+    <Variable>
+      <Value>local</Value>
+      <Name>STORAGE_TYPE</Name>
+      <Mode/>
+    </Variable>
+    <Variable>
+      <Value>/photos</Value>
+      <Name>STORAGE_PATH</Name>
+      <Mode/>
+    </Variable>
+  </Environment>
+  <Config Name="Web UI Port" Target="8000" Default="8080" Mode="tcp" Description="Web interface port" Type="Port" Display="always" Required="true" Mask="false">8080</Config>
+  <Config Name="App Data" Target="/data" Default="/mnt/user/appdata/pixiserve" Mode="rw" Description="Application data and database" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/appdata/pixiserve</Config>
+  <Config Name="Photos Library" Target="/photos" Default="/mnt/user/photos" Mode="rw" Description="Your photo library location" Type="Path" Display="always" Required="true" Mask="false">/mnt/user/photos</Config>
+  <Config Name="Secret Key" Target="SECRET_KEY" Default="change-me-to-random-string" Mode="" Description="Secret key for JWT tokens (generate with: openssl rand -hex 32)" Type="Variable" Display="always" Required="true" Mask="true">change-me-to-random-string</Config>
+  <Config Name="Database URL" Target="DATABASE_URL" Default="postgresql+asyncpg://pixiserve:pixiserve@pixiserve-db:5432/pixiserve" Mode="" Description="PostgreSQL connection string" Type="Variable" Display="advanced" Required="true" Mask="false">postgresql+asyncpg://pixiserve:pixiserve@pixiserve-db:5432/pixiserve</Config>
+  <Config Name="Redis URL" Target="REDIS_URL" Default="redis://pixiserve-redis:6379/0" Mode="" Description="Redis connection string" Type="Variable" Display="advanced" Required="true" Mask="false">redis://pixiserve-redis:6379/0</Config>
+  <Config Name="Storage Type" Target="STORAGE_TYPE" Default="local" Mode="" Description="Storage backend: local or s3" Type="Variable" Display="advanced" Required="false" Mask="false">local</Config>
+  <Config Name="Storage Path" Target="STORAGE_PATH" Default="/photos" Mode="" Description="Path for photo storage" Type="Variable" Display="advanced" Required="false" Mask="false">/photos</Config>
+</Container>

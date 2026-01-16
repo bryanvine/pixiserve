@@ -23,7 +23,9 @@ RUN pip install poetry==1.7.1
 
 COPY pyproject.toml poetry.lock* ./
 
-RUN poetry config virtualenvs.create false \
+# Generate lock file if missing, then install
+RUN poetry lock --no-update || true \
+    && poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi --no-root --only main
 
 # ====================
@@ -35,7 +37,9 @@ RUN pip install poetry==1.7.1
 
 COPY pyproject.toml poetry.lock* ./
 
-RUN poetry config virtualenvs.create false \
+# Generate lock file if missing, then install
+RUN poetry lock --no-update || true \
+    && poetry config virtualenvs.create false \
     && poetry install --no-interaction --no-ansi --no-root
 
 COPY . .

@@ -19,7 +19,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml poetry.lock* ./
 RUN pip install --no-cache-dir poetry && \
     poetry config virtualenvs.create false && \
-    poetry install --no-dev --no-interaction --no-ansi
+    poetry lock --no-update || true && \
+    poetry install --only main --no-interaction --no-ansi
 
 # Copy application code
 COPY app ./app
@@ -58,7 +59,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml poetry.lock* ./
 RUN pip install --no-cache-dir poetry && \
     poetry config virtualenvs.create false && \
-    poetry install --no-dev --no-interaction --no-ansi
+    poetry lock --no-update || true && \
+    poetry install --only main --no-interaction --no-ansi
 
 # Install CUDA-specific ONNX Runtime
 RUN pip install --no-cache-dir onnxruntime-gpu
@@ -101,7 +103,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY pyproject.toml poetry.lock* ./
 RUN pip install --no-cache-dir poetry && \
     poetry config virtualenvs.create false && \
-    poetry install --no-dev --no-interaction --no-ansi
+    poetry lock --no-update || true && \
+    poetry install --only main --no-interaction --no-ansi
 
 # Install ROCm ONNX Runtime
 RUN pip install --no-cache-dir onnxruntime-rocm
@@ -147,7 +150,8 @@ RUN echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" |
 COPY pyproject.toml poetry.lock* ./
 RUN pip install --no-cache-dir poetry && \
     poetry config virtualenvs.create false && \
-    poetry install --no-dev --no-interaction --no-ansi
+    poetry lock --no-update || true && \
+    poetry install --only main --no-interaction --no-ansi
 
 COPY app ./app
 

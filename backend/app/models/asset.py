@@ -10,6 +10,9 @@ from app.models.base import Base, TimestampMixin, UUIDMixin
 
 if TYPE_CHECKING:
     from app.models.user import User
+    from app.models.face import Face
+    from app.models.tag import AssetTag
+    from app.models.album import AlbumAsset
 
 
 class Asset(Base, UUIDMixin, TimestampMixin):
@@ -64,6 +67,9 @@ class Asset(Base, UUIDMixin, TimestampMixin):
 
     # Relationships
     owner: Mapped["User"] = relationship("User", back_populates="assets")
+    faces: Mapped[list["Face"]] = relationship("Face", back_populates="asset", cascade="all, delete-orphan")
+    tags: Mapped[list["AssetTag"]] = relationship("AssetTag", back_populates="asset", cascade="all, delete-orphan")
+    album_assets: Mapped[list["AlbumAsset"]] = relationship("AlbumAsset", back_populates="asset", cascade="all, delete-orphan")
 
     def __repr__(self) -> str:
         return f"<Asset {self.id} ({self.original_filename})>"

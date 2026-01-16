@@ -1,0 +1,59 @@
+{
+  "expo": {
+    "name": "Pixiserve",
+    "slug": "pixiserve",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "pixiserve",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#1a1a2e"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pixiserve.app",
+      "infoPlist": {
+        "NSPhotoLibraryUsageDescription": "Pixiserve needs access to your photos to back them up.",
+        "NSPhotoLibraryAddUsageDescription": "Pixiserve needs permission to save photos.",
+        "NSCameraUsageDescription": "Pixiserve needs camera access to take photos."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#1a1a2e"
+      },
+      "package": "com.pixiserve.app",
+      "permissions": [
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "READ_MEDIA_IMAGES",
+        "READ_MEDIA_VIDEO",
+        "CAMERA"
+      ]
+    },
+    "plugins": [
+      [
+        "expo-media-library",
+        {
+          "photosPermission": "Allow Pixiserve to access your photos for backup.",
+          "savePhotosPermission": "Allow Pixiserve to save photos.",
+          "isAccessMediaLocationEnabled": true
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Pixiserve to access your camera."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}

@@ -8,6 +8,9 @@ from app.models.base import Base, TimestampMixin, UUIDMixin
 
 if TYPE_CHECKING:
     from app.models.asset import Asset
+    from app.models.album import Album
+    from app.models.device import Device
+    from app.models.face import Person
 
 
 class User(Base, UUIDMixin, TimestampMixin):
@@ -30,6 +33,9 @@ class User(Base, UUIDMixin, TimestampMixin):
 
     # Relationships
     assets: Mapped[list["Asset"]] = relationship("Asset", back_populates="owner")
+    albums: Mapped[list["Album"]] = relationship("Album", back_populates="owner")
+    devices: Mapped[list["Device"]] = relationship("Device", back_populates="owner")
+    people: Mapped[list["Person"]] = relationship("Person", back_populates="owner")
 
     def __repr__(self) -> str:
         return f"<User {self.username}>"

@@ -25,7 +25,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install poetry==1.7.1
+RUN pip install poetry==1.8.0
 
 COPY pyproject.toml poetry.lock* ./
 
@@ -45,7 +45,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install poetry==1.7.1
+RUN pip install poetry==1.8.0
 
 COPY pyproject.toml poetry.lock* ./
 

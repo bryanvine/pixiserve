@@ -44,20 +44,26 @@ FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04 AS cuda
 
 WORKDIR /app
 
-# Install Python and system dependencies
+# Install Python 3.11 from deadsnakes PPA and system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common \
+    && add-apt-repository -y ppa:deadsnakes/ppa \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
     python3.11 \
-    python3-pip \
+    python3.11-venv \
     python3.11-dev \
+    python3-pip \
     ffmpeg \
     libpq-dev \
     gcc \
     && rm -rf /var/lib/apt/lists/* \
-    && ln -s /usr/bin/python3.11 /usr/bin/python
+    && ln -sf /usr/bin/python3.11 /usr/bin/python \
+    && ln -sf /usr/bin/python3.11 /usr/bin/python3
 
 # Install Python dependencies
 COPY pyproject.toml poetry.lock* ./
-RUN pip install --no-cache-dir poetry && \
+RUN pip install --no-cache-dir --break-system-packages poetry && \
     poetry config virtualenvs.create false && \
     (poetry lock --no-update || poetry lock) && \
     poetry install --only main --no-interaction --no-ansi
@@ -88,20 +94,26 @@ FROM rocm/dev-ubuntu-22.04:5.7 AS rocm
 
 WORKDIR /app
 
-# Install Python and system dependencies
+# Install Python 3.11 from deadsnakes PPA and system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common \
+    && add-apt-repository -y ppa:deadsnakes/ppa \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
     python3.11 \
-    python3-pip \
+    python3.11-venv \
     python3.11-dev \
+    python3-pip \
     ffmpeg \
     libpq-dev \
     gcc \
     && rm -rf /var/lib/apt/lists/* \
-    && ln -sf /usr/bin/python3.11 /usr/bin/python
+    && ln -sf /usr/bin/python3.11 /usr/bin/python \
+    && ln -sf /usr/bin/python3.11 /usr/bin/python3
 
 # Install Python dependencies
 COPY pyproject.toml poetry.lock* ./
-RUN pip install --no-cache-dir poetry && \
+RUN pip install --no-cache-dir --break-system-packages poetry && \
     poetry config virtualenvs.create false && \
     (poetry lock --no-update || poetry lock) && \
     poetry install --only main --no-interaction --no-ansi
@@ -123,32 +135,34 @@ CMD ["celery", "-A", "app.workers.celery_app", "worker", "--loglevel=info", "-Q"
 # ============================================
 # Google Coral TPU variant
 # ============================================
-FROM debian:bullseye-slim AS coral
+FROM debian:bookworm-slim AS coral
 
 WORKDIR /app
 
-# Install Coral Edge TPU runtime
+# Install Python and system dependencies (Bookworm has Python 3.11)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.11 \
+    python3 \
     python3-pip \
-    python3.11-dev \
+    python3-dev \
+    python3-venv \
     ffmpeg \
     libpq-dev \
     gcc \
     gnupg \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf /usr/bin/python3 /usr/bin/python
 
 # Add Coral repository
 RUN echo "deb https://packages.cloud.google.com/apt coral-edgetpu-stable main" | tee /etc/apt/sources.list.d/coral-edgetpu.list \
     && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add - \
     && apt-get update \
-    && apt-get install -y libedgetpu1-std python3-pycoral \
+    && apt-get install -y libedgetpu1-std \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
 COPY pyproject.toml poetry.lock* ./
-RUN pip install --no-cache-dir poetry && \
+RUN pip install --no-cache-dir --break-system-packages poetry && \
     poetry config virtualenvs.create false && \
     (poetry lock --no-update || poetry lock) && \
     poetry install --only main --no-interaction --no-ansi

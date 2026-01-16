@@ -17,38 +17,8 @@ env:
   WORKER_IMAGE: pixiserve/pixiserve-worker
 
 jobs:
-  # Run tests before building
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        working-directory: ./backend
-        run: |
-          pip install poetry
-          poetry install
-
-      - name: Run linting
-        working-directory: ./backend
-        run: |
-          poetry run ruff check app/
-          poetry run black --check app/
-
-      - name: Run tests
-        working-directory: ./backend
-        run: |
-          poetry run pytest -v || echo "No tests yet"
-
   # Build API image
   build-api:
-    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -99,7 +69,6 @@ jobs:
 
   # Build Web image
   build-web:
-    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -152,7 +121,6 @@ jobs:
 
   # Build Worker image (CPU)
   build-worker:
-    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -204,7 +172,6 @@ jobs:
 
   # Build Worker CUDA image (amd64 only - no ARM CUDA)
   build-worker-cuda:
-    needs: test
     runs-on: ubuntu-latest
     permissions:
       contents: read

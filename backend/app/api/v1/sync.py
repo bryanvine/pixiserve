@@ -124,7 +124,7 @@ async def list_devices(
     result = await db.execute(
         select(Device)
         .where(Device.owner_id == current_user.id)
-        .where(Device.is_active == True)
+        .where(Device.is_active.is_(True))
         .order_by(Device.last_sync_at.desc().nullslast())
     )
     devices = result.scalars().all()

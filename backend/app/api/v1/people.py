@@ -73,10 +73,10 @@ async def list_people(
     )
 
     if not include_hidden:
-        query = query.where(Person.is_hidden == False)
+        query = query.where(Person.is_hidden.is_(False))
 
     if favorites_only:
-        query = query.where(Person.is_favorite == True)
+        query = query.where(Person.is_favorite.is_(True))
 
     # Count total
     count_query = select(func.count()).select_from(query.subquery())

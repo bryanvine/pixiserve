@@ -110,6 +110,13 @@ class Person(Base, UUIDMixin, TimestampMixin):
     # Face count (denormalized for performance)
     face_count: Mapped[int] = mapped_column(Integer, default=0)
 
+    # For merging: points to the person this was merged into
+    merged_into_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("people.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
     # Relationships
     owner = relationship("User", back_populates="people")
     faces = relationship("Face", back_populates="person", foreign_keys=[Face.person_id])
